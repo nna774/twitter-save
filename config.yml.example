@@ -1,0 +1,12 @@
+:db: 'twitter'
+:mongo: '127.0.0.1:27017'
+
+:"consumer_key": '~~'
+:"consumer_secret": '~~'
+:"access_token": '~~'
+:"access_token_secret": '~~'
+
+:"slack_wh_uri": 'https://hooks.slack.com/services/~~'
+:emoji: ':ikazuchi:'
+:name: 'ikaduchi'
+:channel: '#nona-pics'
