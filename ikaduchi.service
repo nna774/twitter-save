@@ -1,0 +1,14 @@
+[Unit]
+Description=ikaduchi
+
+[Service]
+Type=simple
+ExecStart=/bin/bash -c "cd /home/nona/ikaduchi; /home/nona/.rbenv/shims/bundle exec ruby main.rb"
+ExecReload=/bin/bash -c "cd /home/nona/ikaduchi; /home/nona/.rbenv/shims/bundle exec ruby main.rb"
+KillMode=control-group
+Restart=on-failure
+RestartSec=3s
+
+[Install]
+WantedBy=default.target
+
