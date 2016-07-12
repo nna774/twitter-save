@@ -9,6 +9,7 @@ require 'pry'
 config = YAML.load_file(File.join(__dir__, 'config.yml'))
 
 Mongo::Logger.logger = Logger.new(STDERR)
+Mongo::Logger.logger.level = Logger::INFO
 client = Mongo::Client.new([ config[:mongo] ], {:database => config[:db]})
 
 slackcfg = {
