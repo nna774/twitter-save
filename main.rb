@@ -34,6 +34,12 @@ def post2slack(cfg, str)
   https.request(req)
 end
 
+post2slack(slackcfg, '<@U0323ESK6|nona7>: 行くわよ！ しれーかん！')
+
+END {
+  post2slack(slackcfg, '<@U0323ESK6|nona7>: 司令官、どこ……？ もう、声が聞こえないわ……。')
+}
+
 class Saver
   def initialize(client, slackcfg, savecfg)
     @deletes = client[:deletes]
