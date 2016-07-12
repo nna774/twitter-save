@@ -114,7 +114,7 @@ class Saver
   private
 
   def dir(obj)
-    d = File.join(@savecfg[:savedir], Time.now.strftime("%Y%m"), obj.target.screen_name)
+    d = File.join(@savecfg[:savedir], obj.target.screen_name, Time.now.strftime("%Y%m"))
     FileUtils.mkdir_p(d)
     d
   end
