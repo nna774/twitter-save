@@ -89,27 +89,35 @@ class Saver
       when Twitter::Media::AnimatedGif
         save_gif(obj, media)
       when Twitter::Media::Video
-        nil
+        save_video(obj, media)
       end
     end
   end
 
   def save_image(obj, media)
-    dir = File.join(@savecfg[:savedir], obj.target.screen_name)
-    FileUtils.mkdir_p(dir)
     to = File.basename(media.attrs[:media_url_https])
-    download("#{media.attrs[:media_url_https]}:orig", dir, to)
+    download("#{media.attrs[:media_url_https]}:orig", dir(obj), to)
   end
 
   def save_gif(obj, media)
-    dir = File.join(@savecfg[:savedir], obj.target.screen_name)
-    FileUtils.mkdir_p(dir)
     uri = media.attrs.dig(:video_info, :variants, 0, :url)
     to = File.basename(uri)
-    download(uri, dir, to)
+    download(uri, dir(obj), to)
+  end
+
+  def save_video(obj, media)
+    uri = media.attrs.dig(:video_info, :variants).select {|v| v[:content_type] == "video/mp4" }.max {|a, b| a[:bitrate] <=> b[:bitrate] }[:url]
+    to = File.basename(uri)
+    download(uri, dir(obj), to)
   end
 
   private
+
+  def dir(obj)
+    d = File.join(@savecfg[:savedir], obj.target.screen_name)
+    FileUtils.mkdir_p(d)
+    d
+  end
 
   def download(uri, dir, filename)
     open(File.join(dir, filename), 'wb') do |output|
