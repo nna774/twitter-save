@@ -3,6 +3,7 @@ require 'twitter'
 require 'yaml'
 require 'json'
 require 'net/https'
+require 'open-uri'
 require 'pry'
 
 config = YAML.load_file(File.join(__dir__, 'config.yml'))
@@ -33,7 +34,7 @@ def post2slack(cfg, str)
 end
 
 class Saver
-  def initialize(client)
+  def initialize(client, slackcfg, savecfg)
     @deletes = client[:deletes]
     @deletes.create if @deletes.nil?
     @dms = client[:dms]
@@ -44,6 +45,9 @@ class Saver
     @favs.create if @favs.nil?
     @events = client[:events]
     @events.create if @events.nil?
+
+    @slackcfg = slackcfg
+    @savecfg = savecfg
   end
   
   def save(coll, obj)
@@ -60,18 +64,47 @@ class Saver
     save(@tweets, obj)
   end
   def save_fav(obj)
-    binding.pry
     save(@favs, { :source => obj.source.to_h, :target => obj.target.to_h, :"target_object" => obj.target_object.to_h })
     if obj.target_object.media?
-      post2slack(slackcfg, obj.target_object.uri)
+      post2slack(@slackcfg, obj.target_object.uri)
+      binding.pry
+      save_media(obj)
     end
   end
   def save_other_event(obj)
     save(@events, { :name => obj.name, :source => obj.source.to_h, :target => obj.target.to_h, :"target_object" => obj.target_object.to_h })
   end
+
+  def save_media(obj)
+    obj.target_object.media.each do |media|
+      case media
+      when Twitter::Media::Photo
+        save_image(obj, media)
+      when Twitter::Media::Video
+      when Twitter::Media::AnimatedGif
+      end
+    end
+  end
+
+  def save_image(obj, media)
+    dir = File.join(@savecfg[:savedir], obj.target.screen_name)
+    FileUtils.mkdir_p(dir)
+    to = File.basename(media.attrs[:media_url_https])
+    download("#{media.attrs[:media_url_https]}:orig", dir, to)
+  end
+
+  private
+
+  def download(uri, dir, filename)
+    open(File.join(dir, filename), 'wb') do |output|
+      open(uri) do |data|
+        output.write(data.read)
+      end
+    end
+  end
 end
 
-saver = Saver.new(client)
+saver = Saver.new(client, slackcfg, config)
 
 streaming = Twitter::Streaming::Client.new do |cfg|
   cfg.consumer_key        = config[:"consumer_key"]
