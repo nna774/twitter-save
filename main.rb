@@ -68,7 +68,6 @@ class Saver
     save(@favs, { :source => obj.source.to_h, :target => obj.target.to_h, :"target_object" => obj.target_object.to_h })
     if obj.target_object.media?
       post2slack(@slackcfg, obj.target_object.uri)
-      binding.pry
       save_media(obj)
     end
   end
