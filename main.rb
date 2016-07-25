@@ -139,28 +139,28 @@ end
 
 cnt = 3
 begin
-streaming.user do |obj|
-  case obj
-  when Twitter::Streaming::DeletedTweet
-    saver.save_delete(obj)
-  when Twitter::DirectMessage
-    saver.save_dm(obj)
-  when Twitter::Tweet
-    saver.save_tweet(obj)
-  when Twitter::Streaming::Event
-    if obj.name == :favorite
-      saver.save_fav(obj)
-    else
-      saver.save_other_event(obj)
+  streaming.user do |obj|
+    case obj
+    when Twitter::Streaming::DeletedTweet
+      saver.save_delete(obj)
+    when Twitter::DirectMessage
+      saver.save_dm(obj)
+    when Twitter::Tweet
+      saver.save_tweet(obj)
+    when Twitter::Streaming::Event
+      if obj.name == :favorite
+        saver.save_fav(obj)
+      else
+        saver.save_other_event(obj)
+      end
     end
   end
-end
 rescue EOFError, Mongo::Error::SocketError
-    if (cnt -= 1) > 0
-      sleep 1
-post2slack(slackcfg, "<@U0323ESK6|nona7>: 応急修理#{['要員', '女神'].sample}発動！")
-      retry
-    else
-      raise e
-    end
+  if (cnt -= 1) > 0
+    sleep 1
+    post2slack(slackcfg, "<@U0323ESK6|nona7>: 応急修理#{['要員', '女神'].sample}発動！")
+    retry
+  else
+    raise e
+  end
 end
