@@ -156,12 +156,14 @@ begin
     end
   end
 rescue EOFError, Mongo::Error::SocketError => e
-  if (cnt -= 1) > 0
-    post2slack(slackcfg, "<@U0323ESK6|nona7>: しれーかん、なんだか変よ……。")
-    post2slack(slackcfg, "class: #{e.class}, message: #{e.message}")
-    post2slack(slackcfg, "```\nbacktrace:\n#{e.backtrace.join("\n")}\n```")
+  post2slack(slackcfg, "<@U0323ESK6|nona7>: しれーかん、なんだか変よ……。")
+  post2slack(slackcfg, "class: #{e.class}, message: #{e.message}")
+  post2slack(slackcfg, "```\nbacktrace:\n#{e.backtrace.join("\n")}\n```")
+  if cnt > 0
     sleep 1
     post2slack(slackcfg, "<@U0323ESK6|nona7>: 応急修理#{['要員', '女神'].sample}発動！")
+    cnt -= 1
+    post2slack(slackcfg, "これが最後のダメコンよ……。") if cnt == 0
     retry
   else
     raise e
