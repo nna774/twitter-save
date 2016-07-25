@@ -137,6 +137,8 @@ streaming = Twitter::Streaming::Client.new do |cfg|
   cfg.access_token_secret = config[:"access_token_secret"]
 end
 
+cnt = 3
+begin
 streaming.user do |obj|
   case obj
   when Twitter::Streaming::DeletedTweet
@@ -152,4 +154,13 @@ streaming.user do |obj|
       saver.save_other_event(obj)
     end
   end
+end
+rescue EOFError, Mongo::Error::SocketError
+    if (cnt -= 1) > 0
+      sleep 1
+post2slack(slackcfg, "<@U0323ESK6|nona7>: 応急修理#{['要員', '女神'].sample}発動！")
+      retry
+    else
+      raise e
+    end
 end
